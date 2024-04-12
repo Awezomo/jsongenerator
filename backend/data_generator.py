@@ -12,7 +12,7 @@ def generate_synthetic_data(json_data):
 
     # Generate synthetic data based on JSON schema
     synthetic_data = {}
-
+    #test
     # Example: Generate synthetic data based on JSON schema
     # Replace this logic with your own data generation logic
     for key, value in data.items():
