@@ -1,0 +1,60 @@
+{% extends "bootstrap/base.html" %}
+
+{% block title %}Subpage{% endblock %}
+
+{% block content %}
+    <div class="container-fluid">
+        <div class="jumbotron bg-dark text-light">
+            <h1 class="display-4 text-center">JSON Data Generator</h1>
+            <p class="lead text-center">Create synthetic datasets for volunteering projects!</p>
+        </div>
+        <div class="container mt-5">
+            <div class="row">
+                <div class="col-md-6 offset-md-3">
+                    <form id="inputForm">
+                        <div class="form-group">
+                            <label for="inputField">Input:</label>
+                            <input type="text" class="form-control" id="inputField" placeholder="Enter input">
+                        </div>
+                        <div class="form-group">
+                            <label for="fileInput">Upload:</label>
+                            <input type="file" id="fileInput" class="form-control-file">
+                        </div>
+                        <button type="submit" class="btn btn-primary mb-3">Generate</button>
+                    </form>
+                    <div id="output" class="mb-3">
+                        <!-- Generated text or visualization will be displayed here -->
+                    </div>
+                    <div class="btn-group" role="group" aria-label="Visualization Toggle">
+                        <button type="button" class="btn btn-secondary">Generated Text</button>
+                        <button type="button" class="btn btn-secondary">Visualization</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    <script>
+        // JavaScript for handling form submission and toggling between text and visualization
+        document.getElementById('inputForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            var inputField = document.getElementById('inputField').value;
+            // Fetch data or generate text based on inputField value
+            // Update the output div accordingly
+        });
+
+        // JavaScript for toggling between text and visualization
+        var visualizationBtns = document.querySelectorAll('.btn-group .btn');
+        visualizationBtns.forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                visualizationBtns.forEach(function(btn) {
+                    btn.classList.remove('active');
+                });
+                this.classList.add('active');
+                // Show/hide relevant content based on which button is clicked
+            });
+        });
+    </script>
+{% endblock %}
