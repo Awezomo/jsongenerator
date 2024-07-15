@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSON Data Generator Results</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .container {
+            max-width: 800px;
+            margin-top: 50px;
+        }
+        .card {
+            margin-bottom: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .card-header {
+            background-color: #007bff;
+            color: #fff;
+        }
+        .card-body {
+            padding: 20px;
+        }
+        .banner {
+            background-color: #007bff;
+            color: #fff;
+            padding: 10px 0;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .banner h1 {
+            margin-right: 10px;
+        }
+        .logo {
+            width: 50px;
+            height: auto;
+        }
+        .form-check {
+            margin-bottom: 10px;
+        }
+        .comparison {
+            display: flex;
+            justify-content: space-between;
+        }
+        .json-data {
+            flex: 1;
+            margin-right: 10px;
+        }
+        .visualization {
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div class="banner">
+        <a href="/" style="text-decoration: none; color: #fff;">
+            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo" class="logo">
+            <h1>JSON Data Generator</h1>
+        </a>
+    </div>
+    <div class="container">
+        <div class="comparison">
+            <div class="json-data">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="mb-1">Generated JSON Data</h2>
+                        <p>Generation Method: {{ generation_method }}</p>
+                        <p>JSON Type: {{ json_type }}</p>
+                    </div>
+                    <div class="card-body">
+                        <textarea id="generatedJson" class="form-control mb-3" rows="10" readonly>{{ json_data }}</textarea>
+                        
+                        <form id="downloadForm" method="post" action="/download_json">
+                            <input type="hidden" name="json_data" value="{{ json_data }}">
+                            <input type="hidden" name="json_type" value="{{ json_type }}">
+                            <button type="submit" class="btn btn-primary mb-3">Download JSON</button>
+                        </form>
+                        
+                        <form id="saveForm" method="post" action="/save_json">
+                            <input type="hidden" name="json_data" value="{{ json_data }}">
+                            <button type="submit" class="btn btn-warning mb-3">Save for Comparison</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        
+            {% if saved_json_data %}
+            <div class="json-data" id="savedJsonSection">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="mb-1">Saved JSON Data</h2>
+                        <p>Generation Method: {{ saved_json_data.generation_method }}</p>
+                        <p>JSON Type: {{ saved_json_data.json_type }}</p>
+                    </div>
+                    <div class="card-body">
+                        <form id="clearComparisonForm" method="post" action="/clear_comparison">
+                            <input type="hidden" name="clear_comparison" value="true">
+                            <textarea id="savedJson" class="form-control mb-3" rows="10" readonly>{{ saved_json_data.json_data }}</textarea>
+                            <button type="submit" class="btn btn-danger mb-3">Clear Comparison</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        
+        <div class="visualization">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="mb-1">Visualization</h2>
+                </div>
+                <div class="card-body">
+                    <div id="visualization">
+                        {{ visualization_html | safe }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container mt-4">
+        <a href="/" class="btn btn-secondary">Return to Main Page</a>
+    </div>
+
+    <script>
+        document.getElementById('clearComparisonForm').addEventListener('submit', function(event) {
+            // Hide the saved JSON section
+            document.getElementById('savedJsonSection').style.display = 'none';
+        });
+    </script>
+</body>
+</html>

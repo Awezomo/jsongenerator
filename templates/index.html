@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSON Data Generator</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+    body {
+        background-color: #f8f9fa;
+    }
+    .container {
+        max-width: 800px;
+        margin-top: 50px;
+    }
+    .card {
+        margin-bottom: 20px;
+    }
+    .card-header {
+        background-color: #007bff;
+        color: #fff;
+    }
+    .card-body {
+        padding: 20px;
+    }
+    .banner {
+        display: flex;
+        justify-content: center;
+        background-color: #007bff;
+        color: #fff;
+        padding: 10px;
+        margin-bottom: 20px;
+    }
+    .banner h1 {
+        margin: 0;
+        text-align: center;
+    }
+    .logo {
+        width: 50px;
+        height: auto;
+        margin-left: 20px; /* Adjust this value as needed */
+    }
+</style>
+
+</head>
+<body>
+    <div class="banner">
+		<a href="/" style="text-decoration: none; color: #fff;">
+			<img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo" class="logo">
+			<h1>JSON Data Generator</h1>
+		</a>
+	</div>
+    <div class="container">
+        <div class="card">
+            <div class="card-body">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">
+                        <a href="/persons">Persons</a>
+                    </li>
+                    <li class="list-group-item">
+                        <a href="/badges">Badges</a>
+                    </li>
+                    <li class="list-group-item">
+                        <a href="/activities">Activities</a>
+                    </li>
+                    <li class="list-group-item">
+                        <a href="/organisations">Organisations</a>
+                    </li>
+                    <li class="list-group-item">
+                        <a href="/goals">Goals</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
