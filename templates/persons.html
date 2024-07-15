@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Persons</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .container {
+            max-width: 800px;
+            margin-top: 50px;
+        }
+        .card {
+            margin-bottom: 20px;
+        }
+        .card-header {
+            background-color: #007bff;
+            color: #fff;
+        }
+        .card-body {
+            padding: 20px;
+        }
+        .banner {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #007bff;
+            color: #fff;
+            padding: 10px 0;
+            margin-bottom: 20px;
+        }
+        .banner h1 {
+            margin-right: 10px;
+        }
+        .logo {
+            width: 50px;
+            height: auto;
+        }
+        .form-check-label {
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="banner">
+        <a href="/" style="text-decoration: none; color: #fff;">
+            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo" class="logo">
+            <h1>JSON Data Generator</h1>
+        </a>
+    </div>
+    <div class="container">
+        <div class="card">
+            <div class="card-header">
+                <h2 class="mb-0">Select Attributes and Generation Method for Persons</h2>
+            </div>
+            <div class="card-body">
+                <form id="attributesForm" method="post" action="/generate" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label for="dataInputMethod">Select Data Input Method:</label><br>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="dataInputMethod" id="attributeInput" value="attribute" checked>
+                            <label class="form-check-label" for="attributeInput">
+                                Select Attributes
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="dataInputMethod" id="fileInput" value="file">
+                            <label class="form-check-label" for="fileInput">
+                                Upload Data File
+                            </label>
+                        </div>
+                    </div>
+                    <div id="attributeForm">
+                        <!-- Attribute selection form -->
+                        <div class="form-group">
+                            <label for="attributeCheckbox">Select Attributes:</label><br>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="attribute" value="userName" id="userNameCheckbox">
+                                <label class="form-check-label" for="userNameCheckbox">
+                                    Username
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="attribute" value="password" id="passwordCheckbox">
+                                <label class="form-check-label" for="passwordCheckbox">
+                                    Password
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="attribute" value="email" id="emailCheckbox">
+                                <label class="form-check-label" for="emailCheckbox">
+                                    Email
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="attribute" value="firstName" id="firstNameCheckbox">
+                                <label class="form-check-label" for="firstNameCheckbox">
+                                    First Name
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="attribute" value="lastName" id="lastNameCheckbox">
+                                <label class="form-check-label" for="lastNameCheckbox">
+                                    Last Name
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="attribute" value="birthDate" id="birthDateCheckbox">
+                                <label class="form-check-label" for="birthDateCheckbox">
+                                    Birth Date
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="fileForm" style="display: none;">
+                        <!-- File upload form -->
+                        <div class="form-group">
+                            <label for="file">Upload Data:</label>
+                            <input type="file" class="form-control-file" id="file" name="file">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="generationMethod">Select Generation Method:</label>
+                        <select class="form-control" id="generationMethod" name="generationMethod">
+                            <option value="Python Libraries">Python Libraries</option>
+                            <option value="Large Language Model">Large Language Model</option>
+                            <!-- Add more options as needed -->
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="numRecords">Number of Records:</label>
+                        <input type="number" class="form-control" id="numRecords" name="numRecords" value="1" min="1">
+                    </div>
+                    <input type="hidden" name="jsonType" value="persons">
+                    <button type="submit" class="btn btn-primary">Generate</button>
+                </form>
+                <div id="output" class="mt-4"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container mt-4">
+        <a href="/" class="btn btn-secondary">Return to Main Page</a>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Automatically check all attribute checkboxes when the page loads
+            var attributeCheckboxes = document.querySelectorAll('input[name="attribute"]');
+            attributeCheckboxes.forEach(function(checkbox) {
+                checkbox.checked = true;
+            });
+
+            // Handle toggling between attribute and file input methods
+            var attributeInput = document.getElementById('attributeInput');
+            var fileInput = document.getElementById('fileInput');
+            var attributeForm = document.getElementById('attributeForm');
+            var fileForm = document.getElementById('fileForm');
+
+            attributeInput.addEventListener('change', function() {
+                if (this.checked) {
+                    attributeForm.style.display = 'block';
+                    fileForm.style.display = 'none';
+                }
+            });
+
+            fileInput.addEventListener('change', function() {
+                if (this.checked) {
+                    attributeForm.style.display = 'none';
+                    fileForm.style.display = 'block';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,28 @@
+[
+    {
+        "badgeName":"FuLA Gold",
+        "badgeDescription":"FuLA Gold",
+        "badgeIssuedOn":"2005-03-18"
+    },
+    {
+        "badgeName":"FLA Gold",
+        "badgeDescription":"FLA Gold",
+        "badgeIssuedOn":"2005-05-20"
+    },
+    {
+        "badgeName":"THL Gold",
+        "badgeDescription":"THL Gold",
+        "badgeIssuedOn":"2006-04-28"
+    },
+    {
+       "badgeName":"001 Grundlehrgang",
+       "badgeDescription":"001 Grundlehrgang",
+       "badgeIssuedOn":"2001-04-14"
+    },
+    {
+       "badgeName":"005 Funklehrgang",
+       "badgeDescription":"005 Funklehrgang",
+       "badgeIssuedOn":"2002-03-09"
+    }
+]
+
