@@ -1,0 +1,23 @@
+# Ignore compiled binaries
+*.exe
+*.o
+*.out
+
+# Ignore log files
+*.log
+
+# Ignore node_modules directory
+node_modules/
+
+# Ignore macOS system files
+.DS_Store
+
+# Ignore IntelliJ IDEA project files
+.idea/
+
+gpt_neo_finetuned/
+
+gpt_neo_multitask_finetuned/
+
+*.zip
+

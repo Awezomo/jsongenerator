@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Activities</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .container {
+            max-width: 800px;
+            margin-top: 50px;
+        }
+        .card {
+            margin-bottom: 20px;
+        }
+        .card-header {
+            background-color: #007bff;
+            color: #fff;
+        }
+        .card-body {
+            padding: 20px;
+        }
+        .banner {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #007bff;
+            color: #fff;
+            padding: 10px 0;
+            margin-bottom: 20px;
+        }
+        .banner h1 {
+            margin-right: 10px;
+        }
+        .logo {
+            width: 50px;
+            height: auto;
+        }
+        .form-check-label {
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="banner">
+        <a href="/" style="text-decoration: none; color: #fff;">
+            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo" class="logo">
+            <h1>JSON Data Generator</h1>
+        </a>
+    </div>
+    <div class="container">
+        <div class="card">
+            <div class="card-header">
+                <h2 class="mb-0">Activities</h2>
+            </div>
+            <div class="card-body">
+                <form id="attributesForm" method="post" action="/generate" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label for="dataInputMethod">Select Data Generation or Anonymization:</label><br>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="dataInputMethod" id="attributeInput" value="attribute" checked>
+                            <label class="form-check-label" for="attributeInput">
+                                Generate Data
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="dataInputMethod" id="fileInput" value="file">
+                            <label class="form-check-label" for="fileInput">
+                                Anonymize Data
+                            </label>
+                        </div>
+                    </div>
+                    <div id="attributeForm">
+                        <!-- Attribute selection form -->
+                        <div class="form-group">
+                            <label for="attributeCheckbox">Select Attributes:</label><br>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="attribute" value="title" id="actNameCheckbox">
+                                <label class="form-check-label" for="actNameCheckbox">
+                                    Title
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="attribute" value="description" id="actDescriptionCheckbox">
+                                <label class="form-check-label" for="actDescriptionCheckbox">
+                                    Description
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="attribute" value="startDate" id="startDateCheckbox">
+                                <label class="form-check-label" for="startDateCheckbox">
+                                    Start Date
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="attribute" value="endDate" id="endDateCheckbox">
+                                <label class="form-check-label" for="endDateCheckbox">
+                                    End Date
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="attribute" value="geoinfo" id="actLocationCheckbox">
+                                <label class="form-check-label" for="actLocationCheckbox">
+                                    Geoinfo
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="attribute" value="duration" id="durationCheckbox">
+                                <label class="form-check-label" for="durationCheckbox">
+                                    Duration
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="attribute" value="purpose" id="purposeCheckbox">
+                                <label class="form-check-label" for="purposeCheckbox">
+                                    Purpose
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="attribute" value="role" id="roleCheckbox">
+                                <label class="form-check-label" for="roleCheckbox">
+                                    Role
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="attribute" value="rank" id="rankCheckbox">
+                                <label class="form-check-label" for="rankCheckbox">
+                                    Rank
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="attribute" value="phase" id="phaseCheckbox">
+                                <label class="form-check-label" for="phaseCheckbox">
+                                    Phase
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="attribute" value="unit" id="unitCheckbox">
+                                <label class="form-check-label" for="unitCheckbox">
+                                    Unit
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="attribute" value="level" id="levelCheckbox">
+                                <label class="form-check-label" for="levelCheckbox">
+                                    Level
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="attribute" value="taskType" id="taskTypeCheckbox">
+                                <label class="form-check-label" for="taskTypeCheckbox">
+                                    Task Type
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="attribute" value="bereich" id="bereichCheckbox">
+                                <label class="form-check-label" for="bereichCheckbox">
+                                    Bereich
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="fileForm" style="display: none;">
+                        <!-- File upload form -->
+                        <div class="form-group">
+                            <label for="file">Upload Data:</label>
+                            <input type="file" class="form-control-file" id="file" name="file">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="generationMethod">Select Generation Method:</label>
+                        <select class="form-control" id="generationMethod" name="generationMethod">
+                            <option value="Python Libraries">Python Libraries</option>
+                            <option value="Large Language Model">Large Language Model</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="numRecords">Number of Records:</label>
+                        <input type="number" class="form-control" id="numRecords" name="numRecords" value="1" min="1">
+                    </div>
+                    <!-- New button for anonymizing data -->
+                    <button type="button" class="btn btn-danger" id="anonymizeDataBtn" style="display: none;">Anonymize my data</button>
+                    
+                    <!-- Existing submit button -->
+                    <button type="submit" class="btn btn-primary">Generate</button>
+                </form>
+                <div id="output" class="mt-4"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container mt-4">
+        <a href="/" class="btn btn-secondary">Return to Main Page</a>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+    // Function to toggle visibility of elements
+    function toggleVisibility(attributeFormVisible, fileFormVisible, anonymizeBtnVisible) {
+        attributeForm.style.display = attributeFormVisible ? 'block' : 'block';
+        fileForm.style.display = fileFormVisible ? 'block' : 'none';
+        anonymizeDataBtn.style.display = anonymizeBtnVisible ? 'inline-block' : 'none';
+        generateBtn.style.display = anonymizeBtnVisible ? 'none' : 'inline-block'; // Hide generate button
+        generationMethodField.style.display = anonymizeBtnVisible ? 'none' : 'block'; // Hide generation method select
+        numRecordsField.style.display = anonymizeBtnVisible ? 'none' : 'block'; // Hide num records input
+    }
+
+    // Automatically check all attribute checkboxes when the page loads
+    var attributeCheckboxes = document.querySelectorAll('input[name="attribute"]');
+    attributeCheckboxes.forEach(function(checkbox) {
+        checkbox.checked = true;
+    });
+
+    // Handle toggling between attribute and file input methods
+    var attributeInput = document.getElementById('attributeInput');
+    var fileInput = document.getElementById('fileInput');
+    var attributeForm = document.getElementById('attributeForm');
+    var fileForm = document.getElementById('fileForm');
+    var anonymizeDataBtn = document.getElementById('anonymizeDataBtn');
+    var generateBtn = document.querySelector('button[type="submit"]');
+    var generationMethodField = document.getElementById('generationMethod').parentNode;
+    var numRecordsField = document.getElementById('numRecords').parentNode;
+
+    // Event listeners for radio buttons
+    attributeInput.addEventListener('change', function() {
+        if (this.checked) {
+            toggleVisibility(true, false, false);
+        }
+    });
+
+    fileInput.addEventListener('change', function() {
+        if (this.checked) {
+            toggleVisibility(false, true, true);
+        }
+    });
+
+    // Event listener for anonymizeDataBtn
+    anonymizeDataBtn.addEventListener('click', function() {
+        // Call anonymize function in your Flask app
+        anonymize();
+    });
+
+    // Initial setup based on default radio button checked state
+    if (attributeInput.checked) {
+        toggleVisibility(true, false, false);
+    } else {
+        toggleVisibility(false, true, true);
+    }
+});
+    </script>
+</body>
+</html>
