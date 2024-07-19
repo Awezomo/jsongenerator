@@ -53,13 +53,20 @@
         .visualization {
             margin-top: 30px;
         }
+        pre {
+            white-space: pre-wrap; /* Allow wrapping for large data */
+            background-color: #fff; /* Add background color for readability */
+            border: 1px solid #ccc; /* Add border to distinguish */
+            border-radius: 5px; /* Rounded corners */
+            padding: 10px; /* Add some padding */
+        }
     </style>
 </head>
 <body>
     <div class="banner">
         <a href="/" style="text-decoration: none; color: #fff;">
             <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo" class="logo">
-            <h1>JSON Data Generator</h1>
+            <h1>JSON Data Generator and Anonymizer</h1>
         </a>
     </div>
     <div class="container">

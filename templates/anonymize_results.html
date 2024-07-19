@@ -10,7 +10,7 @@
             background-color: #f8f9fa;
         }
         .container {
-            max-width: 800px;
+            max-width: 1000px;
             margin-top: 50px;
         }
         .card {
@@ -39,12 +39,23 @@
             width: 50px;
             height: auto;
         }
-        .form-check {
-            margin-bottom: 10px;
+        .comparison {
+            display: flex;
+            justify-content: space-between;
         }
         .json-data {
             flex: 1;
             margin-right: 10px;
+        }
+        pre {
+            white-space: pre-wrap; /* Allow wrapping for large data */
+            background-color: #fff; /* Add background color for readability */
+            border: 1px solid #ccc; /* Add border to distinguish */
+            border-radius: 5px; /* Rounded corners */
+            padding: 10px; /* Add some padding */
+        }
+        .highlight {
+            background-color: yellow; /* Highlight color */
         }
     </style>
 </head>
@@ -52,32 +63,83 @@
     <div class="banner">
         <a href="/" style="text-decoration: none; color: #fff;">
             <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo" class="logo">
-            <h1>JSON Data Anonymization</h1>
+            <h1>JSON Data Generator and Anonymizer</h1>
         </a>
     </div>
     <div class="container">
-        <div class="json-data">
-            <div class="card">
-                <div class="card-header">
-                    <h2 class="mb-1">Anonymized JSON Data</h2>
-                    <p>JSON Type: {{ json_type }}</p>
+        <div class="comparison">
+            <!-- Original JSON Data -->
+            <div class="json-data">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="mb-1">Original JSON Data</h2>
+                        <p>JSON Type: {{ json_type }}</p>
+                    </div>
+                    <div class="card-body">
+                        <pre id="originalJson">{{ original_json_data | safe }}</pre>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <textarea id="anonymizedJson" class="form-control mb-3" rows="10" readonly>{{ json_data | safe }}</textarea>
-                    
-                    <form id="downloadForm" method="post" action="/download_json">
-                        <input type="hidden" name="json_data" value="{{ json_data }}">
-                        <input type="hidden" name="json_type" value="{{ json_type }}">
-                        <button type="submit" class="btn btn-primary mb-3">Download JSON</button>
-                    </form>
-                
+            </div>
+
+            <!-- Anonymized JSON Data -->
+            <div class="json-data">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="mb-1">Anonymized JSON Data</h2>
+                        <p>JSON Type: {{ json_type }}</p>
+                    </div>
+                    <div class="card-body">
+                        <pre id="anonymizedJson">{{ anonymized_json_data | safe }}</pre>
+                        
+                        <form id="anonymizedDownloadForm" method="post" action="/download_json">
+                            <input type="hidden" name="json_data" value="{{ anonymized_json_data }}">
+                            <input type="hidden" name="json_type" value="{{ json_type }}">
+                            <button type="submit" class="btn btn-primary mb-3">Download Anonymized JSON</button>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
+
+        <div class="container mt-4">
+            <a href="/" class="btn btn-secondary">Return to Main Page</a>
+        </div>
     </div>
 
-    <div class="container mt-4">
-        <a href="/" class="btn btn-secondary">Return to Main Page</a>
-    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const selectedAttributes = JSON.parse('{{ selected_attributes | tojson | safe }}');
+            const anonymizedJsonPre = document.getElementById('anonymizedJson');
+    
+            function highlightAttributes(data, attributes) {
+                // Convert the data string into a DOM element to manipulate it more easily
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(`<pre>${data}</pre>`, 'text/html');
+                const pre = doc.querySelector('pre');
+
+                // Function to highlight text nodes containing the attribute
+                function highlightTextNodes(node) {
+                    if (node.nodeType === Node.TEXT_NODE) {
+                        const parent = node.parentNode;
+                        attributes.forEach(attr => {
+                            const regex = new RegExp(`(${attr}):\\s*"([^"]*)"`, 'g');
+                            parent.innerHTML = parent.innerHTML.replace(regex, `$1: <span class="highlight">$2</span>`);
+                        });
+                    } else if (node.nodeType === Node.ELEMENT_NODE) {
+                        node.childNodes.forEach(child => highlightTextNodes(child));
+                    }
+                }
+
+                highlightTextNodes(pre);
+                
+                return pre.innerHTML;
+            }
+    
+            if (anonymizedJsonPre) {
+                const originalData = anonymizedJsonPre.textContent;
+                anonymizedJsonPre.innerHTML = highlightAttributes(originalData, selectedAttributes);
+            }
+        });
+    </script>
 </body>
 </html>

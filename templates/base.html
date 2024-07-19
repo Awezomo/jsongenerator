@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Badges</title>
+    <title>{% block title %}JSON Data Generator{% endblock %}</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
@@ -48,75 +48,16 @@
     <div class="banner">
         <a href="/" style="text-decoration: none; color: #fff;">
             <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo" class="logo">
-            <h1>JSON Data Generator and Anonymizer</h1>
+            <h1>JSON Data Generator</h1>
         </a>
     </div>
     <div class="container">
         <div class="card">
             <div class="card-header">
-                <h2 class="mb-0">Badges</h2>
+                <h2 class="mb-0">{% block header %}Header{% endblock %}</h2>
             </div>
             <div class="card-body">
-                <form id="attributesForm" method="post" action="/generate" enctype="multipart/form-data">
-                    <div class="form-group">
-                        <label for="dataInputMethod">Select Data Generation or Anonymization:</label><br>
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="dataInputMethod" id="generateDataInput" value="generate" checked>
-                            <label class="form-check-label" for="generateDataInput">
-                                Generate Data
-                            </label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="dataInputMethod" id="anonymizeDataInput" value="anonymize">
-                            <label class="form-check-label" for="anonymizeDataInput">
-                                Anonymize Data
-                            </label>
-                        </div>
-                    </div>
-                    <div id="attributeForm">
-                        <div class="form-group">
-                            <label for="attributeCheckbox">Select Attributes:</label><br>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="attribute" value="badgeName" id="badgeNameCheckbox">
-                                <label class="form-check-label" for="badgeNameCheckbox">
-                                    Badge Name
-                                </label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="attribute" value="badgeDescription" id="badgeDescriptionCheckbox">
-                                <label class="form-check-label" for="badgeDescriptionCheckbox">
-                                    Badge Description
-                                </label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="attribute" value="badgeIssuedOn" id="badgeIssuedOnCheckbox">
-                                <label class="form-check-label" for="badgeIssuedOnCheckbox">
-                                    Date of Issue
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-                    <div id="fileForm" style="display: none;">
-                        <div class="form-group">
-                            <label for="file">Upload Data:</label>
-                            <input type="file" class="form-control-file" id="file" name="file">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="method">Select Method:</label>
-                        <select class="form-control" id="method" name="method">
-                            <option value="Python Libraries">Python Libraries</option>
-                            <option value="Large Language Model">Large Language Model</option>
-                        </select>
-                    </div>
-                    <div class="form-group" id="numRecordsField">
-                        <label for="numRecords">Number of Records:</label>
-                        <input type="number" class="form-control" id="numRecords" name="numRecords" value="1" min="1">
-                    </div>
-                    <input type="hidden" name="jsonType" value="badges">
-                    <button type="button" class="btn btn-danger" id="anonymizeDataBtn" style="display: none;">Anonymize Data</button>
-                    <button type="submit" class="btn btn-primary" id="generateBtn">Generate</button>
-                </form>
+                {% block content %}{% endblock %}
                 <div id="output" class="mt-4"></div>
             </div>
         </div>

@@ -15,6 +15,8 @@
         }
         .card {
             margin-bottom: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
         .card-header {
             background-color: #007bff;
@@ -24,13 +26,11 @@
             padding: 20px;
         }
         .banner {
-            display: flex;
-            align-items: center;
-            justify-content: center;
             background-color: #007bff;
             color: #fff;
             padding: 10px 0;
             margin-bottom: 20px;
+            text-align: center;
         }
         .banner h1 {
             margin-right: 10px;
@@ -46,53 +46,78 @@
 </head>
 <body>
     <div class="banner">
-		<a href="/" style="text-decoration: none; color: #fff;">
-			<img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo" class="logo">
-			<h1>JSON Data Generator</h1>
-		</a>
-	</div>
+        <a href="/" style="text-decoration: none; color: #fff;">
+            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo" class="logo">
+            <h1>JSON Data Generator and Anonymizer</h1>
+        </a>
+    </div>
     <div class="container">
         <div class="card">
             <div class="card-header">
-                <h2 class="mb-0">Select Attributes and Generation Method for Goals</h2>
+                <h2 class="mb-0">Goals</h2>
             </div>
             <div class="card-body">
                 <form id="attributesForm" method="post" action="/generate" enctype="multipart/form-data">
                     <div class="form-group">
-                        <label for="attributeCheckbox">Select Attributes:</label><br>
+                        <label for="dataInputMethod">Select Data Generation or Anonymization:</label><br>
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" name="attribute" value="type" id="typeCheckbox">
-                            <label class="form-check-label" for="typeCheckbox">
-                                Type
+                            <input class="form-check-input" type="radio" name="dataInputMethod" id="generateDataInput" value="generate" checked>
+                            <label class="form-check-label" for="generateDataInput">
+                                Generate Data
                             </label>
                         </div>
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" name="attribute" value="level" id="levelCheckbox">
-                            <label class="form-check-label" for="levelCheckbox">
-                                Level
-                            </label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" name="attribute" value="description" id="descriptionCheckbox">
-                            <label class="form-check-label" for="descriptionCheckbox">
-                                Description
+                            <input class="form-check-input" type="radio" name="dataInputMethod" id="anonymizeDataInput" value="anonymize">
+                            <label class="form-check-label" for="anonymizeDataInput">
+                                Anonymize Data
                             </label>
                         </div>
                     </div>
+                    <div id="attributeForm">
+                        <div class="form-group">
+                            <label for="attributeCheckbox">Select Attributes:</label><br>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="attribute" value="type" id="typeCheckbox">
+                                <label class="form-check-label" for="typeCheckbox">
+                                    Type
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="attribute" value="level" id="levelCheckbox">
+                                <label class="form-check-label" for="levelCheckbox">
+                                    Level
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="attribute" value="description" id="descriptionCheckbox">
+                                <label class="form-check-label" for="descriptionCheckbox">
+                                    Description
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="fileForm" style="display: none;">
+                        <div class="form-group">
+                            <label for="file">Upload Data:</label>
+                            <input type="file" class="form-control-file" id="file" name="file">
+                        </div>
+                    </div>
                     <div class="form-group">
-                        <label for="generationMethod">Select Generation Method:</label>
-                        <select class="form-control" id="generationMethod" name="generationMethod">
-                            <option value="python_libraries">Python Libraries</option>
-                            <option value="library_faker">Statistical Methods</option>
-                            <!-- Add more options as needed -->
+                        <label for="method">Select Method:</label>
+                        <select class="form-control" id="method" name="method">
+                            <option value="Python Libraries">Python Libraries</option>
+                            <option value="Large Language Model">Large Language Model</option>
                         </select>
                     </div>
-                    <div class="form-group">
-                        <label for="file">Upload Data (Optional):</label>
-                        <input type="file" class="form-control-file" id="file" name="file">
+                    <div class="form-group" id="numRecordsField">
+                        <label for="numRecords">Number of Records:</label>
+                        <input type="number" class="form-control" id="numRecords" name="numRecords" value="1" min="1">
                     </div>
                     <input type="hidden" name="jsonType" value="goals">
-                    <button type="submit" class="btn btn-primary">Generate</button>
+                    <!-- Anonymize Button -->
+                    <button type="button" class="btn btn-danger" id="anonymizeDataBtn" style="display: none;">Anonymize Data</button>
+                    <!-- Submit Button -->
+                    <button type="submit" class="btn btn-primary" id="generateBtn">Generate</button>
                 </form>
                 <div id="output" class="mt-4"></div>
             </div>
@@ -106,5 +131,61 @@
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Function to toggle visibility of elements based on data input method
+            function toggleVisibility(generateVisible, anonymizeVisible) {
+                attributeForm.style.display = generateVisible ? 'block' : 'block';
+                fileForm.style.display = generateVisible ? 'none' : 'block';
+                anonymizeDataBtn.style.display = anonymizeVisible ? 'inline-block' : 'none';
+                generateBtn.style.display = anonymizeVisible ? 'none' : 'inline-block';
+                methodField.style.display = 'block';
+                numRecordsField.style.display = generateVisible ? 'block' : 'none';
+
+                // Uncheck all checkboxes if anonymize is selected, else check all checkboxes
+                var checkboxes = document.querySelectorAll('input[type="checkbox"]');
+                checkboxes.forEach(function(checkbox) {
+                    checkbox.checked = generateVisible; // Check if generateVisible is true, else uncheck
+                });
+            }
+
+            // Get form elements
+            var attributeForm = document.getElementById('attributeForm');
+            var fileForm = document.getElementById('fileForm');
+            var anonymizeDataBtn = document.getElementById('anonymizeDataBtn');
+            var generateBtn = document.getElementById('generateBtn');
+            var methodField = document.getElementById('method').parentNode;
+            var numRecordsField = document.getElementById('numRecordsField');
+
+            // Event listeners for radio buttons
+            var generateDataInput = document.getElementById('generateDataInput');
+            var anonymizeDataInput = document.getElementById('anonymizeDataInput');
+
+            generateDataInput.addEventListener('change', function() {
+                if (this.checked) {
+                    toggleVisibility(true, false);
+                }
+            });
+
+            anonymizeDataInput.addEventListener('change', function() {
+                if (this.checked) {
+                    toggleVisibility(false, true);
+                }
+            });
+
+            // Initial setup based on default radio button checked state
+            if (generateDataInput.checked) {
+                toggleVisibility(true, false);
+            } else {
+                toggleVisibility(false, true);
+            }
+
+            // Function to handle anonymize button click
+            anonymizeDataBtn.addEventListener('click', function() {
+                document.getElementById('attributesForm').action = '/anonymize'; // Set form action to anonymize route
+                document.getElementById('attributesForm').submit(); // Submit the form
+            });
+        });
+    </script>
 </body>
 </html>

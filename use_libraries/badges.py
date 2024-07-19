@@ -3,32 +3,50 @@ import random
 from faker import Faker
 import markovify
 import random
+import time
 
 # Initialize Faker
 fake = Faker(['de_AT', 'de_DE'])
 
-# Function to generate structured data using Faker
-def generate_json_data(attributes, num_records=10):
+def handle_badges(data=None, attributes=None, num_records=None, action='generate'):
+    if action not in ['generate', 'anonymize']:
+        raise ValueError("action must be either 'generate' or 'anonymize'")
+    
+    if action == 'anonymize':
+        if not isinstance(data, list) or not all(isinstance(record, dict) for record in data):
+            raise TypeError("Data should be a list of dictionaries")
 
-    data = []
-    for _ in range(num_records):
+    results_times = []
+    badge_names = ['FuLA Gold', 'FLA Gold', 'FuLA Silber', 'FLA Silber', 'FuLA Bronze', 'FLA Bronze', 'THL Gold', 'THL Silber', 'THL Bronze']
+
+    if action == 'generate':
+        data = []
+
+    for _ in range(num_records or len(data)):
         record = {}
+        if action == 'anonymize':
+            record = data[_]
+        start_time = time.time()
+
         for attribute in attributes:
             if attribute == 'badgeName' or attribute == 'badgeDescription':
-                names = ['FuLA Gold', 'FLA Gold', 'FuLA Silber', 'FLA Silber', 'FuLA Bronze', 'FLA Bronze', 'THL Gold', 'THL Silber', 'THL Bronze']
-                record[attribute] = random.choice(names) 
-                record['badgeDescription'] = random.choice(names) 
+                choice = random.choice(badge_names)
+                record['badgeName'] = choice
+                record['badgeDescription'] = f"{choice} Abzeichen"
             elif attribute == 'badgeIssuedOn':
                 start_date = datetime.date(1970, 1, 1)
                 end_date = datetime.date(2023, 12, 31)
-                random_birthDate = fake.date_between(start_date=start_date, end_date=end_date)
-                record[attribute] = str(random_birthDate)
+                record[attribute] = str(fake.date_between(start_date=start_date, end_date=end_date))
             else:
                 record[attribute] = fake.word()
-        
-        data.append(record)
-    
-    return data
+
+        end_time = time.time()
+        results_times.append(end_time - start_time)
+
+        if action == 'generate':
+            data.append(record)
+
+    return data, results_times
 
 def train_markov_model(uploaded_data, attribute):
     if uploaded_data is None:

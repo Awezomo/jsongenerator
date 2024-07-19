@@ -15,6 +15,8 @@
         }
         .card {
             margin-bottom: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
         .card-header {
             background-color: #007bff;
@@ -24,13 +26,11 @@
             padding: 20px;
         }
         .banner {
-            display: flex;
-            align-items: center;
-            justify-content: center;
             background-color: #007bff;
             color: #fff;
             padding: 10px 0;
             margin-bottom: 20px;
+            text-align: center;
         }
         .banner h1 {
             margin-right: 10px;
@@ -48,7 +48,7 @@
     <div class="banner">
         <a href="/" style="text-decoration: none; color: #fff;">
             <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo" class="logo">
-            <h1>JSON Data Generator</h1>
+            <h1>JSON Data Generator and Anonymizer</h1>
         </a>
     </div>
     <div class="container">
@@ -61,14 +61,14 @@
                     <div class="form-group">
                         <label for="dataInputMethod">Select Data Generation or Anonymization:</label><br>
                         <div class="form-check">
-                            <input class="form-check-input" type="radio" name="dataInputMethod" id="attributeInput" value="attribute" checked>
-                            <label class="form-check-label" for="attributeInput">
+                            <input class="form-check-input" type="radio" name="dataInputMethod" id="generateDataInput" value="generate" checked>
+                            <label class="form-check-label" for="generateDataInput">
                                 Generate Data
                             </label>
                         </div>
                         <div class="form-check">
-                            <input class="form-check-input" type="radio" name="dataInputMethod" id="fileInput" value="file">
-                            <label class="form-check-label" for="fileInput">
+                            <input class="form-check-input" type="radio" name="dataInputMethod" id="anonymizeDataInput" value="anonymize">
+                            <label class="form-check-label" for="anonymizeDataInput">
                                 Anonymize Data
                             </label>
                         </div>
@@ -171,21 +171,22 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="generationMethod">Select Generation Method:</label>
-                        <select class="form-control" id="generationMethod" name="generationMethod">
+                        <label for="method">Select Method:</label>
+                        <select class="form-control" id="method" name="method">
                             <option value="Python Libraries">Python Libraries</option>
                             <option value="Large Language Model">Large Language Model</option>
                         </select>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" id="numRecordsField">
                         <label for="numRecords">Number of Records:</label>
                         <input type="number" class="form-control" id="numRecords" name="numRecords" value="1" min="1">
                     </div>
                     <!-- New button for anonymizing data -->
-                    <button type="button" class="btn btn-danger" id="anonymizeDataBtn" style="display: none;">Anonymize my data</button>
-                    
+                    <button type="button" class="btn btn-danger" id="anonymizeDataBtn" style="display: none;">Anonymize Data</button>
+                    <input type="hidden" name="jsonType" value="activities">
+                  
                     <!-- Existing submit button -->
-                    <button type="submit" class="btn btn-primary">Generate</button>
+                    <button type="submit" class="btn btn-primary" id="generateBtn">Generate</button>
                 </form>
                 <div id="output" class="mt-4"></div>
             </div>
@@ -201,58 +202,59 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-    // Function to toggle visibility of elements
-    function toggleVisibility(attributeFormVisible, fileFormVisible, anonymizeBtnVisible) {
-        attributeForm.style.display = attributeFormVisible ? 'block' : 'block';
-        fileForm.style.display = fileFormVisible ? 'block' : 'none';
-        anonymizeDataBtn.style.display = anonymizeBtnVisible ? 'inline-block' : 'none';
-        generateBtn.style.display = anonymizeBtnVisible ? 'none' : 'inline-block'; // Hide generate button
-        generationMethodField.style.display = anonymizeBtnVisible ? 'none' : 'block'; // Hide generation method select
-        numRecordsField.style.display = anonymizeBtnVisible ? 'none' : 'block'; // Hide num records input
-    }
+            // Function to toggle visibility of elements based on data input method
+            function toggleVisibility(generateVisible, anonymizeVisible) {
+                attributeForm.style.display = generateVisible ? 'block' : 'block';
+                fileForm.style.display = generateVisible ? 'none' : 'block';
+                anonymizeDataBtn.style.display = anonymizeVisible ? 'inline-block' : 'none';
+                generateBtn.style.display = anonymizeVisible ? 'none' : 'inline-block';
+                methodField.style.display = 'block';
+                numRecordsField.style.display = generateVisible ? 'block' : 'none';
 
-    // Automatically check all attribute checkboxes when the page loads
-    var attributeCheckboxes = document.querySelectorAll('input[name="attribute"]');
-    attributeCheckboxes.forEach(function(checkbox) {
-        checkbox.checked = true;
-    });
+                // Uncheck all checkboxes if anonymize is selected, else check all checkboxes
+                var checkboxes = document.querySelectorAll('input[type="checkbox"]');
+                checkboxes.forEach(function(checkbox) {
+                    checkbox.checked = generateVisible; // Check if generateVisible is true, else uncheck
+                });
+            }
 
-    // Handle toggling between attribute and file input methods
-    var attributeInput = document.getElementById('attributeInput');
-    var fileInput = document.getElementById('fileInput');
-    var attributeForm = document.getElementById('attributeForm');
-    var fileForm = document.getElementById('fileForm');
-    var anonymizeDataBtn = document.getElementById('anonymizeDataBtn');
-    var generateBtn = document.querySelector('button[type="submit"]');
-    var generationMethodField = document.getElementById('generationMethod').parentNode;
-    var numRecordsField = document.getElementById('numRecords').parentNode;
+            // Get form elements
+            var attributeForm = document.getElementById('attributeForm');
+            var fileForm = document.getElementById('fileForm');
+            var anonymizeDataBtn = document.getElementById('anonymizeDataBtn');
+            var generateBtn = document.getElementById('generateBtn');
+            var methodField = document.getElementById('method').parentNode;
+            var numRecordsField = document.getElementById('numRecordsField');
 
-    // Event listeners for radio buttons
-    attributeInput.addEventListener('change', function() {
-        if (this.checked) {
-            toggleVisibility(true, false, false);
-        }
-    });
+            // Event listeners for radio buttons
+            var generateDataInput = document.getElementById('generateDataInput');
+            var anonymizeDataInput = document.getElementById('anonymizeDataInput');
 
-    fileInput.addEventListener('change', function() {
-        if (this.checked) {
-            toggleVisibility(false, true, true);
-        }
-    });
+            generateDataInput.addEventListener('change', function() {
+                if (this.checked) {
+                    toggleVisibility(true, false);
+                }
+            });
 
-    // Event listener for anonymizeDataBtn
-    anonymizeDataBtn.addEventListener('click', function() {
-        // Call anonymize function in your Flask app
-        anonymize();
-    });
+            anonymizeDataInput.addEventListener('change', function() {
+                if (this.checked) {
+                    toggleVisibility(false, true);
+                }
+            });
 
-    // Initial setup based on default radio button checked state
-    if (attributeInput.checked) {
-        toggleVisibility(true, false, false);
-    } else {
-        toggleVisibility(false, true, true);
-    }
-});
+            // Initial setup based on default radio button checked state
+            if (generateDataInput.checked) {
+                toggleVisibility(true, false);
+            } else {
+                toggleVisibility(false, true);
+            }
+
+            // Function to handle anonymize button click
+            anonymizeDataBtn.addEventListener('click', function() {
+                document.getElementById('attributesForm').action = '/anonymize'; // Set form action to anonymize route
+                document.getElementById('attributesForm').submit(); // Submit the form
+            });
+        });
     </script>
 </body>
 </html>
