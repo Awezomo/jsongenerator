@@ -34,7 +34,7 @@ def handle_activities(data=None, attributes=None, num_records=None, action='gene
                 elif attribute == 'description':
                     sample_record = random.choice(sample_data)
                     record[attribute] = sample_record.get("description", "")
-                elif attribute == 'startDate':
+                elif attribute == 'startdate':
                     sample_record = random.choice(sample_data)
                     start_date_value = sample_record.get("startdate")
                     if start_date_value:
@@ -45,7 +45,7 @@ def handle_activities(data=None, attributes=None, num_records=None, action='gene
                     else:
                         start_date_value = fake.date_time_between(start_date='-10y', end_date='now')
                         record[attribute] = start_date_value.strftime('%Y-%m-%d %H:%M:%S')
-                elif attribute == 'endDate':
+                elif attribute == 'enddate':
                     if start_date_value:
                         start_date_dt = datetime.datetime.strptime(start_date_value, '%Y-%m-%d %H:%M:%S')
                         end_date_dt = fake.date_time_between(start_date=start_date_dt)
@@ -90,7 +90,7 @@ def handle_activities(data=None, attributes=None, num_records=None, action='gene
                 elif attribute == 'level':
                     sample_record = random.choice(sample_data)
                     record[attribute] = sample_record.get("level", "")
-                elif attribute == 'taskType':
+                elif attribute == 'tasktype':
                     sample_record = random.choice(sample_data)
                     record[attribute] = random.choice(sample_record.get("tasktype", ""))
                 elif attribute == 'bereich':

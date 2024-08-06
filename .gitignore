@@ -19,5 +19,12 @@ gpt_neo_finetuned/
 
 gpt_neo_multitask_finetuned/
 
+# Ignore all folders starting with gpt_neo_
+gpt_neo_*/
+
+cached_*
+
+__pycache__/
+
 *.zip
 

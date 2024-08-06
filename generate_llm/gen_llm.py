@@ -6,17 +6,19 @@ import torch
 from transformers import GPTNeoForCausalLM, GPT2Tokenizer, pipeline
 from datasets import Dataset
 
+from generate_llm import generate_activities
+
 result_times = []
 valid_result = []
 
 def generate_data(jsonType, uploadedData, num_records):
 
     if jsonType == 'persons':
-        return generate_persons(uploadedData, num_records)
+        return generate_persons(num_records)
     elif jsonType == 'badges':
         return generate_badges(uploadedData, num_records)
     elif jsonType == 'activities':
-        return generate_activities(uploadedData, num_records)
+        return generate_activities.generate_activities(num_records)
     elif jsonType == 'organisations':
         return generate_organisations(uploadedData, num_records)
     elif jsonType == 'goals':
@@ -24,7 +26,7 @@ def generate_data(jsonType, uploadedData, num_records):
     else:
         return []
     
-def generate_persons(prompts, num_records):
+def generate_persons(num_records):
     model_name = "gpt_neo_finetuned"
     tokenizer = GPT2Tokenizer.from_pretrained(model_name)
     model = GPTNeoForCausalLM.from_pretrained(model_name)
@@ -101,7 +103,7 @@ def generate_persons(prompts, num_records):
     while len(generated_persons) < num_records:
         for i in range(0, len(prompts), batch_size):
             batch_prompts = dataset["prompts"][i:i+batch_size]
-            batch_outputs = generator(batch_prompts, max_new_tokens=200, num_return_sequences=1, do_sample=True)
+            batch_outputs = generator(batch_prompts, max_new_tokens=256, num_return_sequences=1, do_sample=True)
             generated_texts = [output[0]['generated_text'] for output in batch_outputs]
             extracted_data = extract_json_objects(generated_texts)
             generated_persons.extend(extracted_data)
@@ -121,8 +123,7 @@ def generate_persons(prompts, num_records):
 
 def generate_badges(selected_attributes, uploadedData, num_records):
            pass
-def generate_activities(selected_attributes, uploadedData, num_records):
-           pass
+
 def generate_organisations(selected_attributes, uploadedData, num_records):
             pass
 

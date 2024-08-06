@@ -40,6 +40,7 @@ def generate_data(jsonType, uploadedData, attributes, method, num_records):
     
     if method == 'Large Language Model':
         print("Generating data using LLM")
+        print("Attributes: ", attributes)
         data, results_times, results_validity = gen_llm.generate_data(jsonType, uploadedData, num_records)
         data = [{attr: entry[attr] for attr in attributes} for entry in data]
 
