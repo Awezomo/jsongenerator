@@ -20,7 +20,7 @@ def handle_goals(data=None, attributes=None, num_records=None, action='generate'
     
     results_times = []
 
-    # Define larger lists for 'type' and 'level' with German/Austrian context
+    # Define  lists for 'type' and 'level' 
     types = [
         'Gemeinschaftsdienst', 'Fundraising', 'Bildung', 'Umweltschutz', 
         'Gesundheit', 'Tierschutz', 'Kultur', 'Katastrophenhilfe', 
@@ -47,9 +47,7 @@ def handle_goals(data=None, attributes=None, num_records=None, action='generate'
             elif attribute == 'level':
                 record[attribute] = random.choice(levels)
             elif attribute == 'description':
-                start_date = datetime.date(1970, 1, 1)
-                end_date = datetime.date(2023, 12, 31)
-                record[attribute] = str(fake.date_between(start_date=start_date, end_date=end_date))
+                record[attribute] = f"Errungenschaft in {record['type']} der Stufe {record['level']}"
             else:
                 record[attribute] = fake.word()
         

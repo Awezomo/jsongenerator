@@ -5,7 +5,7 @@ from faker import Faker
 import numpy as np
 
 # Initialize Faker
-fake = Faker(['de_AT', 'de_DE'])
+fake = Faker(['de_AT'])
 
 def handle_organisations(data=None, attributes=None, num_records=None, action='generate'):
     if action not in ['generate', 'anonymize']:
@@ -25,12 +25,40 @@ def handle_organisations(data=None, attributes=None, num_records=None, action='g
     
     organisations = {'Rotes Kreuz': 'RK', 'Caritas': 'C', 'Diakonie': 'D', 'Volkshilfe': 'VH', 'Arbeiter Samariter Bund': 'ASB', 'Malteser': 'M', 'Johanniter': 'J', 'Pfarrcaritas': 'PC', 'Feuerwehr': 'FF', 'Polizei': 'P'}
     
+    tags = [
+    "Gemeinschaftsdienst",
+    "Nachbarschaftshilfe",
+    "Umweltschutz",
+    "Bildungsförderung",
+    "Soziale Gerechtigkeit",
+    "Jugendarbeit",
+    "Seniorenbetreuung",
+    "Integration",
+    "Flüchtlingshilfe",
+    "Katastrophenschutz",
+    "Gesundheitsförderung",
+    "Kulturförderung",
+    "Sportförderung",
+    "Tierschutz",
+    "Menschenrechte",
+    "Obdachlosenhilfe",
+    "Frauenförderung",
+    "Kinderbetreuung",
+    "Inklusion",
+    "Bildungschancen",
+    "Entwicklungshilfe",
+    "Berufsbildung",
+    "Krisenintervention",
+    "Seelsorge",
+    "Freiwilligendienst"
+    ]
+
     for _ in range(num_records or len(data)):
         record = {}
         if action == 'anonymize':
             record = data[_]
         start_time = time.time()
-
+        print(attributes)
         for attribute in attributes:
             if attribute == 'organisationName':
                 org_name = random.choice(list(organisations.keys()))
@@ -39,13 +67,17 @@ def handle_organisations(data=None, attributes=None, num_records=None, action='g
                 org_name = record.get('organisationName')
                 record[attribute] = organisations.get(org_name, '')
             elif attribute == 'orgDescription':
-                record[attribute] = fake.text()
+                record[attribute] = f"Organisation {record['organisationName']}, abgekürzt mit {record['abbreviation']}"
             elif attribute == 'orgWebsite':
-                record[attribute] = fake.url()
+                if action == 'anonymize':
+                    record[attribute] = fake.url()
+                else: 
+                    record[attribute] = f"https://{record['organisationName'].lower()}.at/"
             elif attribute == 'orgImage':
                 record[attribute] = fake.image_url()
             elif attribute == 'orgTags':
-                record[attribute] = ', '.join(fake.words(nb=3))
+                selected_tags = random.sample(tags, random.randint(1, 3))
+                record[attribute] = ", ".join(selected_tags)
             elif attribute == 'orgLocation':
                 record[attribute] = fake.city()
             else:
