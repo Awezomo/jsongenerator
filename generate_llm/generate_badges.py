@@ -4,8 +4,8 @@ import re
 import torch
 from transformers import GPTNeoForCausalLM, GPT2Tokenizer, set_seed, pipeline
 
-def generate_persons(selected_attributes, uploadedData, num_records=1):
-    model_name = "gpt_neo_finetuned"  
+def generate_badges(num_records=1):
+    model_name = "gpt_neo_badges_finetuned"  
     tokenizer = GPT2Tokenizer.from_pretrained(model_name)
     model = GPTNeoForCausalLM.from_pretrained(model_name)
 
@@ -17,8 +17,8 @@ def generate_persons(selected_attributes, uploadedData, num_records=1):
     generator = pipeline('text-generation', model=model, tokenizer=tokenizer, device=device)
 
     # Function to generate JSON objects in batches
-    def generate_person_data_batch(prompts):
-        generated_persons = []
+    def generate_badge_data(prompts):
+        generated_badges = []
 
         for prompt in prompts:
             while True:
@@ -27,23 +27,22 @@ def generate_persons(selected_attributes, uploadedData, num_records=1):
                     generated_text = output['generated_text']
 
                     # Extract JSON part from the generated text using regex
-                    pattern = r'\{\s*"userName":\s*"[^"]+",\s*"password":\s*"[^"]+",\s*"email":\s*"[^"]+",\s*"firstName":\s*"([^"]+)",\s*"lastName":\s*"([^"]+)",\s*"birthDate":\s*"[^"]+"\s*\}'
+                    pattern = r'\{\s*"badgeName":\s*"[^"]+",\s*"badgeDescription":\s*"[^"]+",\s*"badgeIssuedOn":\s*"\d{4}-\d{2}-\d{2}"\s*\}'
                     match = re.search(pattern, generated_text, re.DOTALL)
                     if match:
                         extracted_json = match.group(0)
                         try:
-                            person_data = json.loads(extracted_json)
+                            badge_data = json.loads(extracted_json)
                             
-                            # Validate firstName and lastName
-                            if not person_data['firstName'].istitle() or any(char.isdigit() for char in person_data['firstName']):
-                                print(f"Invalid firstName: {person_data['firstName']}")
-                                break  # Break the inner loop to regenerate the prompt and retry
+                            #if any(char.isdigit() for char in badge_data['badgeName']):
+                            #    print(f"Invalid badgeName: {badge_data['badgeName']}")
+                            #    break
+
+                            #if any(char.isdigit() for char in badge_data['badgeDescription']):
+                            #    print(f"Invalid lastName: {badge_data['badgeDescription']}")
+                            #    break 
                             
-                            if not person_data['lastName'].istitle() or any(char.isdigit() for char in person_data['lastName']):
-                                print(f"Invalid lastName: {person_data['lastName']}")
-                                break  # Break the inner loop to regenerate the prompt and retry
-                            
-                            generated_persons.append(person_data)
+                            generated_badges.append(badge_data)
                             break  # Break the inner loop to move to the next prompt
                         except json.JSONDecodeError:
                             print(f"Error decoding JSON: {extracted_json}")
@@ -54,40 +53,36 @@ def generate_persons(selected_attributes, uploadedData, num_records=1):
                     print(f"Unexpected output type: {type(output)}")
                     break  # Break the inner loop to regenerate the prompt and retry
 
-        return generated_persons
+        return generated_badges
 
     # Define prompts for JSON object generation
     prompts = [
         f"""Generate a JSON object with the following properties:
-    "userName": {{
+    "badgeName": {{
         "type": "string",
-        "description": "The username of the person, for a volunteering platform"
+        "description": "The name of the badge"
     }},
-    "password": {{
+    "badgeDescription": {{
         "type": "string",
-        "description": "a password one person would choose"
+        "description": "The description of a badge"
     }},
-    "email": {{
+    "badgeIssuedOn": {{
         "type": "string",
-        "description": "the mail address of the person, most of the users are from Austria, so use reasonable domains. Make sure the address is not usually using another name than the first and last names generated"
-    }},
-    "firstName": {{
-        "type": "string",
-        "description": "the first name of the person. most of the users are from Austria, so use reasonable names"
-    }},
-    "lastName": {{
-        "type": "string",
-        "description": "the last name of the person. most of the users are from Austria, so use reasonable names"
-    }},
-    "birthDate": {{
-        "type": "string",
-        "description": "the birth date of the person"
+        "description": "The date of the badge being issued"
     }}
+
+    Here is a reference:
+    [
+        {
+            "badgeName": "THL Gold",
+            "badgeDescription": "THL Gold Abzeichen",
+            "badgeIssuedOn": "1989-10-29"
+        }
+    ]
+    Mix the results up.
     JSON object:
     """ for _ in range(num_records)  # Adjust the range based on how many JSON objects you want to generate
     ]
 
     # Generate JSON objects in batches
-    generated_persons = generate_person_data_batch(prompts)
-
-    return generated_persons
+    return generate_badge_data(prompts)

@@ -31,7 +31,7 @@ data_collator = DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm=False)
 
 # Training arguments
 training_args = TrainingArguments(
-    output_dir="./gpt_neo_activities_finetuned",
+    output_dir="./gpt_neo_badges_finetuned",
     overwrite_output_dir=True,
     num_train_epochs=10,
     per_device_train_batch_size=4,
@@ -51,5 +51,5 @@ trainer = Trainer(
 trainer.train()
 
 # Save the fine-tuned model
-model.save_pretrained("./gpt_neo_activities_finetuned")
-tokenizer.save_pretrained("./gpt_neo_activities_finetuned")
+model.save_pretrained("./gpt_neo_badges_finetuned")
+tokenizer.save_pretrained("./gpt_neo_badges_finetuned")

@@ -12,7 +12,6 @@ import time
 
 import generate_llm.gen_llm as gen_llm
 from visualize import visualize_data  # Import the visualize_data function
-from deepdiff import DeepDiff
 
 app = Flask(__name__)
 app.config['JSON_AS_ASCII'] = False
