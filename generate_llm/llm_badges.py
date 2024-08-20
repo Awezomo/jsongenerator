@@ -29,7 +29,6 @@ def generate_badges(num_records=1):
                 start_time = time.time()  # Record the start time
                 
                 output = generator(prompt, max_new_tokens=200, num_return_sequences=1, do_sample=True)[0]
-                
                 result_times.append(time.time() - start_time)  # Calculate and store the elapsed time
 
                 if isinstance(output, dict):
@@ -76,13 +75,6 @@ def generate_badges(num_records=1):
     "badgeIssuedOn": {{
         "type": "string",
         "description": "The date of the badge being issued"
-    }}
-
-    Here is a reference:
-    {{
-        "badgeName": "THL Gold",
-        "badgeDescription": "THL Gold Abzeichen",
-        "badgeIssuedOn": "1989-10-29"
     }}
  
     JSON object:

@@ -5,7 +5,7 @@ import time  # Import the time module to track result times
 from transformers import GPTNeoForCausalLM, GPT2Tokenizer, set_seed, pipeline
 
 def generate_organisations(num_records=1):
-    model_name = "gpt_neo_org_finetuned"  
+    model_name = "gpt_neo_orgs_finetuned"  
     tokenizer = GPT2Tokenizer.from_pretrained(model_name)
     model = GPTNeoForCausalLM.from_pretrained(model_name)
 
@@ -94,16 +94,6 @@ def generate_organisations(num_records=1):
         "describes": "The location of the volunteering organisation."
     }}
 
-    Here is a reference:
-    {{
-        "organisationName": "Volkshilfe",
-        "abbreviation": "VH",
-        "orgDescription": "Organisation Volkshilfe, abgekürzt mit VH",
-        "orgWebsite": "https://volkshilfe.at/",
-        "orgImage": "https://dummyimage.com/861x131",
-        "orgTags": "Gesundheitsförderung, Seelsorge, Kinderbetreuung",
-        "orgLocation": "Rattenberg"
-    }}
     JSON object:
     """ for _ in range(num_records)  # Adjust the range based on how many JSON objects you want to generate
     ]

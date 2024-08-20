@@ -12,7 +12,7 @@ model = GPTNeoForCausalLM.from_pretrained(model_name)
 script_dir = os.path.dirname(__file__)  # This assumes your script is in the same directory as the datasets
 
 # Relative path to datasets
-file_path = os.path.join(script_dir, "orgs_dataset.json")
+file_path = os.path.join(script_dir, "org_dataset.json")
 
 with open(file_path, "r", encoding="utf-8") as f:
     dataset = json.load(f)

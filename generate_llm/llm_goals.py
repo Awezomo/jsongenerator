@@ -95,12 +95,6 @@ def generate_goals(num_records=1):
         "describes": "The description of the volunteering goal, usually consisting of type and level."
     }}
 
-    Here is a reference:
-    {{
-        "type": "Fundraising",
-        "level": "Leiter",
-        "description": "Errungenschaft in Fundraising der Stufe Leiter"
-    }}
     JSON object:
     """ for _ in range(num_records)  # Adjust the range based on how many JSON objects you want to generate
     ]

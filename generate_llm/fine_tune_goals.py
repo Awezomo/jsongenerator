@@ -33,10 +33,10 @@ data_collator = DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm=False)
 training_args = TrainingArguments(
     output_dir="./gpt_neo_goals_finetuned",
     overwrite_output_dir=True,
-    num_train_epochs=10,
+    num_train_epochs=5,
     per_device_train_batch_size=4,
     save_steps=10_000,
-    save_total_limit=2,
+    save_total_limit=0,
 )
 
 # Trainer for multi-task learning
