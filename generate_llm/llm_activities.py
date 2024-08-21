@@ -4,6 +4,92 @@ import re
 from datasets import Dataset
 import time
 
+def anonymize_activities(data, selected_attributes):
+    model_name = "gpt_neo_activities_finetuned"  # Update to the appropriate model name
+    tokenizer = GPT2Tokenizer.from_pretrained(model_name)
+    model = GPTNeoForCausalLM.from_pretrained(model_name)
+
+    # Set the device to GPU if available
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    model.to(device)
+
+    # Set the generator pipeline
+    generator = pipeline('text-generation', model=model, tokenizer=tokenizer, device=0 if device == "cuda" else -1)
+
+    def extract_keys_from_text(text, keys):
+        patterns = {
+            'title': r'"title"\s*:\s*"([^"]*)"',
+            'description': r'"description"\s*:\s*"([^"]*)"',
+            'startdate': r'"startdate"\s*:\s*"([^"]*)"',
+            'enddate': r'"enddate"\s*:\s*"([^"]*)"',
+            'geoinfo.name': r'"geoinfo"\s*:\s*\{\s*"name"\s*:\s*"([^"]*)"',
+            'geoinfo.latitude': r'"geoinfo"\s*:\s*\{\s*"latitude"\s*:\s*"([^"]*)"',
+            'geoinfo.longitude': r'"geoinfo"\s*:\s*\{\s*"longitude"\s*:\s*"([^"]*)"',
+            'duration': r'"duration"\s*:\s*"([^"]*)"',
+            'purpose': r'"purpose"\s*:\s*"([^"]*)"',
+            'role': r'"role"\s*:\s*"([^"]*)"',
+            'rank': r'"rank"\s*:\s*"([^"]*)"',
+            'phase': r'"phase"\s*:\s*"([^"]*)"',
+            'unit': r'"unit"\s*:\s*"([^"]*)"',
+            'level': r'"level"\s*:\s*"([^"]*)"',
+            'tasktype': r'"tasktype"\s*:\s*\[([^\]]*)\]',
+            'bereich': r'"bereich"\s*:\s*"([^"]*)"'
+        }
+
+        features = {}
+        for key in keys:
+            pattern = patterns.get(key)
+            if pattern:
+                match = re.search(pattern, text)
+                if match:
+                    value = match.group(1)
+                    if key == 'tasktype':
+                        features[key] = [item.strip().strip('"') for item in value.split(',')]
+                    else:
+                        features[key] = value
+        return features
+
+    def process_text(text, keys):
+        text = text.replace('\n', ' ').replace('\r', '').replace('“', '"').replace('”', '"')
+        return extract_keys_from_text(text, keys)
+
+    anonymized_data = []
+    prompts = []
+
+    for record in data:
+        # Create a prompt based on the selected attributes
+        prompt_parts = [f'"{attr}"' for attr in selected_attributes]
+        prompt_attributes = ', '.join(prompt_parts)
+        prompt = f"""Generate new values for the following attributes: {prompt_attributes} 
+        JSON object:"""
+        prompts.append(prompt)
+
+    dataset = Dataset.from_dict({"prompts": prompts})
+    batch_size = 1
+
+    while len(anonymized_data) < len(data):
+        for i in range(0, len(prompts), batch_size):
+            batch_prompts = dataset["prompts"][i:i + batch_size]
+            batch_outputs = generator(batch_prompts, max_length=2048, num_return_sequences=1, do_sample=True)
+            
+            generated_texts = [output[0]['generated_text'] for output in batch_outputs]
+            for idx, generated_text in enumerate(generated_texts):
+                new_values = process_text(generated_text, selected_attributes)
+
+                # Verify that the generated values are different; otherwise, fill with ""
+                anonymized_record = {}
+                for attr in selected_attributes:
+                    old_value = record.get(attr, "")
+                    new_value = new_values.get(attr, "")
+                    anonymized_record[attr] = new_value if new_value and new_value != old_value else ""
+
+                anonymized_data.append({**record, **anonymized_record})
+
+                if len(anonymized_data) >= len(data):
+                    break
+
+    return anonymized_data
+
 def generate_activities(num_records):
     model_name = "gpt_neo_activities_finetuned"  # Update to the appropriate model name
     tokenizer = GPT2Tokenizer.from_pretrained(model_name)

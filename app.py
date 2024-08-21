@@ -4,13 +4,14 @@ import json
 from io import BytesIO
 import matplotlib
 
+import generate_llm.anonymize_master
 import use_libraries.anonymize_master
 import use_libraries.gen_libs_master
 # Use the Agg backend
 matplotlib.use('agg')
 import time
 
-import generate_llm.gen_llm as gen_llm
+import generate_llm
 from visualize import visualize_data  # Import the visualize_data function
 
 app = Flask(__name__)
@@ -40,7 +41,7 @@ def generate_data(jsonType, uploadedData, attributes, method, num_records):
     if method == 'Large Language Model':
         print("Generating data using LLM")
         print("Attributes: ", attributes)
-        data, results_times, results_validity = gen_llm.generate_data(jsonType, uploadedData, num_records)
+        data, results_times, results_validity = generate_llm.gen_llm.generate_data(jsonType, uploadedData, num_records)
         data = [{attr: entry[attr] for attr in attributes} for entry in data]
 
     end_time = time.time()
@@ -140,7 +141,14 @@ def anonymize():
         return jsonify({'error': 'Upload Error: No JSON data provided'}), 400
 
     original_json_data = json.dumps(uploaded_data, indent=4, ensure_ascii=False)
-    anonymized_data, _ = use_libraries.anonymize_master.anonymize_data(uploaded_data, selected_attributes, method, json_type)
+    
+    if method=="Python Libraries":
+        anonymized_data, _ = use_libraries.anonymize_master.anonymize_data(uploaded_data, selected_attributes, method, json_type)
+    elif method=="Large Language Model":
+        anonymized_data = generate_llm.anonymize_master.anonymize_data(uploaded_data, selected_attributes, json_type)
+    else:
+        anonymized_data = ["No valid method provided"]
+
     json_data = json.dumps(anonymized_data, indent=4, ensure_ascii=False)
 
     return render_template('anonymize_results.html', 

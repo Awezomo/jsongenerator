@@ -8,6 +8,68 @@ from datasets import Dataset
 result_times = []
 valid_result = []
 
+def anonymize_persons(data, selected_attributes):
+    model_name = "gpt_neo_finetuned"  # Update to the appropriate model name
+    tokenizer = GPT2Tokenizer.from_pretrained(model_name)
+    model = GPTNeoForCausalLM.from_pretrained(model_name)
+
+    # Set the device to GPU if available
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    model.to(device)
+
+    # Set the generator pipeline
+    generator = pipeline('text-generation', model=model, tokenizer=tokenizer, device=device)
+
+    def extract_values_from_text(generated_text, selected_attributes):
+        """Extracts values for selected attributes from the generated text."""
+        extracted_data = {}
+        for attr in selected_attributes:
+            pattern = re.compile(rf'"{attr}"\s*:\s*"([^"]*)"')
+            match = pattern.search(generated_text)
+            if match:
+                extracted_data[attr] = match.group(1)
+            else:
+                extracted_data[attr] = ""
+        return extracted_data
+
+    prompts = [
+        f"""Generate new values for the following attributes: {", ".join(selected_attributes)} 
+        Ensure the output is a valid JSON object with only the specified attributes.
+        JSON object:"""
+        for _ in range(len(data))
+    ]
+
+    dataset = Dataset.from_dict({"prompts": prompts})
+    
+    anonymized_persons = []
+    batch_size = 1  
+    
+    result_times.clear()
+    valid_result.clear()
+    
+    while len(anonymized_persons) < len(data):
+        for i in range(0, len(prompts), batch_size):
+            batch_prompts = dataset["prompts"][i:i+batch_size]
+            batch_outputs = generator(batch_prompts, max_new_tokens=150, num_return_sequences=1, do_sample=True)
+            generated_texts = [output['generated_text'] for output in batch_outputs]
+            
+            for idx, generated_text in enumerate(generated_texts):
+                extracted_data = extract_values_from_text(generated_text, selected_attributes)
+                anonymized_record = {}
+                original_record = data[i + idx]
+
+                for attr in selected_attributes:
+                    old_value = original_record.get(attr, "")
+                    new_value = extracted_data.get(attr, "")
+                    anonymized_record[attr] = new_value if new_value and new_value != old_value else ""
+
+                anonymized_persons.append({**original_record, **anonymized_record})
+
+            if len(anonymized_persons) >= len(data):
+                break
+
+    return anonymized_persons[:len(data)]
+
 def generate_persons(num_records):
     model_name = "gpt_neo_finetuned"
     tokenizer = GPT2Tokenizer.from_pretrained(model_name)

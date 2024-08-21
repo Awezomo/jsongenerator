@@ -90,3 +90,42 @@ def generate_badges(num_records=1):
     print("Validity of results:", valid_result)
 
     return generated_badges, result_times, valid_result
+
+def anonymize_badges(data, attributes_to_anonymize):
+    model_name = "gpt_neo_badges_finetuned"  
+    tokenizer = GPT2Tokenizer.from_pretrained(model_name)
+    model = GPTNeoForCausalLM.from_pretrained(model_name)
+
+    # Set the device to GPU if available
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    model.to(device)
+
+    # Set the generator pipeline
+    generator = pipeline('text-generation', model=model, tokenizer=tokenizer, device=device)
+
+    # Function to generate new values for selected attributes
+    def generate_new_value(attribute):
+        prompt = f"""
+        Generate a new value for the attribute "{attribute}" of a JSON object representing a volunteering badge.
+        The structure should be like:
+        "{attribute}": "..."
+        """
+        output = generator(prompt, max_new_tokens=30, num_return_sequences=1, do_sample=True)[0]
+        generated_text = output['generated_text']
+
+        # Extract the new value from the generated text
+        pattern = rf'"{attribute}":\s*"([^"]+)"'
+        match = re.search(pattern, generated_text)
+        if match:
+            return match.group(1)
+        return None
+
+    # Anonymize the selected attributes in the provided data
+    for badge in data:
+        for attribute in attributes_to_anonymize:
+            if attribute in badge:
+                new_value = generate_new_value(attribute)
+                if new_value:
+                    badge[attribute] = new_value
+
+    return data
