@@ -11,7 +11,7 @@ import use_libraries.gen_libs_master
 matplotlib.use('agg')
 import time
 
-import generate_llm
+import generate_llm.gen_llm
 from visualize import visualize_data  # Import the visualize_data function
 
 app = Flask(__name__)

@@ -40,16 +40,26 @@ def handle_persons(data=None, attributes=None, num_records=None, action='generat
 
         for attribute in attributes:
             if attribute == 'firstName':
-                firstname_generated = fake.first_name()
+                if not firstname_generated:
+                    firstname_generated = fake.first_name()
                 record[attribute] = firstname_generated
             elif attribute == 'lastName':
-                lastname_generated = fake.last_name()
+                if not lastname_generated:
+                    lastname_generated = fake.last_name()
                 record[attribute] = lastname_generated
             elif attribute == 'userName':
                 include_number = np.random.choice([True, False], p=[0.7, 0.3])
                 random_number = user_num if include_number else ""
-                first_name = firstname_generated or fake.first_name()
-                last_name = lastname_generated or fake.last_name()
+                if firstname_generated:
+                    first_name = firstname_generated
+                    last_name = lastname_generated
+                else:
+                    firstname_generated = fake.first_name()
+                    first_name = firstname_generated
+
+                    lastname_generated = fake.last_name()
+                    last_name = lastname_generated
+                
                 record[attribute] = f"{first_name.lower()}{last_name.lower()}{random_number}"
             elif attribute == 'email':
                 first_name = firstname_generated or fake.first_name()
